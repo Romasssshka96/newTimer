@@ -29,8 +29,6 @@ input{
 
 .case{
     width: 70vw;
-    display: none;
-
 }
 
 .wrap{
@@ -61,6 +59,6 @@ input{
 }
 
 .clear{
-    display: none;
-    margin: 30px auto 0 auto;
+    background-color: rgb(183, 121, 241);
+    margin: 30px 41%;
 }

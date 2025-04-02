@@ -4,14 +4,14 @@ let dataForCaunter = (finishData) =>{
     let difference = deadLine - nowDate;
     let days = Math.floor(difference/(1000*60*60*24))
     let hours = Math.floor((difference/(1000*60*60)%24))
-    let minutes = Math.floor((difference/1000/60)%60)
+    let minuts = Math.floor((difference/1000/60)%60)
     let seconds = Math.floor((difference/1000)%60)
 
     let obj = {
         'total': difference,
         'days': days,
         'hours': hours,
-        'minutes': minutes,
+        'minuts': minuts,
         'seconds': seconds,
     }
     
@@ -19,60 +19,90 @@ let dataForCaunter = (finishData) =>{
 }
 
 
+    const section = document.querySelector('section')
+    const form = document.querySelector('#form')
+     
+
+    let bottonClear = document.createElement('button')
+    bottonClear.classList ='clear'
+    bottonClear.innerText = 'сбросить таймер '
+    
+
+    bottonClear.addEventListener('click',()=>{
+        let timer = document.querySelector('.case')
+        timer.remove()
+        bottonClear.remove()
+        form.style.display = 'flex'
+        section.append(form)
+        form.reset()
+    })
+
+
 
 form.addEventListener('submit', (e)=>{
     e.preventDefault()
-
-    const section = document.querySelector('section')
-    const form = document.querySelector('#form')
-    const timer = document.querySelector('.case')
-
-    form.style.display ='none'
-    timer.style.display = 'block'
-
     let formData = Object.fromEntries(new FormData(form)) 
-    console.log(formData)
 
+    if(formData.data == ''){
+        alert('некоректно введена дата')
+    }else{
 
-    let interval = setInterval(refreshTimer, 1000)
+        form.style.display = 'none'
 
-    function refreshTimer(){
-        let dataValue = dataForCaunter(formData.data)
-        let title = document.querySelector('.title')
-        let days = document.querySelector('.days')
-        let hours = document.querySelector('.hours')
-        let minuts = document.querySelector('.minuts')
-        let seconds = document.querySelector('.seconds')
+        console.log(formData)
 
+        let dataValue = dataForCaunter(formData.data);
 
-        title.innerHTML = formData.descr
-        days.innerHTML = dataValue.days
-        hours.innerHTML = dataValue.hours
-        minuts.innerHTML = dataValue.minutes
-        seconds.innerHTML = dataValue.seconds
+        function writer (title, days, hours, minuts, seconds){
+            section.innerHTML =`
+    <div class="case">
+        <div class="title">${title}</div>
+        <div class="wrap">
+
+            <div class="value">
+                дней
+                <div class="days time">${days}</div>
+            </div>
+            <div class="value">
+                часов
+                <div class="hours time">${hours}</div>
+            </div>
+            <div class="value">
+                минут
+                <div class="minuts time">${minuts}</div>
+            </div>        
+            <div class="value">
+                секунд
+                <div class="seconds time">${seconds}</div>
+            </div>
+        </div>
+    </div>
+    `;
+        }
+
+        function refreshTimer(){
+
+        let dataValue = dataForCaunter(formData.data);
+        let title = formData.descr;
+        let days = dataValue.days;
+        let hours = dataValue.hours;
+        let minuts = dataValue.minuts;
+        let seconds = dataValue.seconds;
+        
+        writer(title,days,hours,minuts,seconds)
+        }
+
+        let interval = setInterval(refreshTimer, 1000);
+        console.log(dataValue.total)
 
         if(dataValue.total <=0){
-            title.innerHTML = `${formData.descr} - отсчет закончен`
-            days.innerHTML = 0
-            hours.innerHTML = 0
-            minuts.innerHTML = 0
-            seconds.innerHTML = 0
-            clearInterval(interval)
-            let bottonClear = document.querySelector('.clear')
-            bottonClear.style.display = 'block'
-            bottonClear.addEventListener('click',()=>{
-                form.style.display ='flex'
-                timer.style.display = 'none'
-                bottonClear.style.display = 'none'
-                form.reset()
-            })
+            clearInterval(interval);
+            writer(`${formData.descr} - отсчет закончен`,0,0,0,0)
 
-        }
+            section.append(bottonClear)
+        
+        } 
     }
-
-
-
-
 })
 
 
@@ -86,29 +116,10 @@ form.addEventListener('submit', (e)=>{
 
 
 
-//    section.innerHTML =`
-//    <div class="case">
-//        <div class="title">${formData.descr}</div>
-//        <div class="wrap">
-//
-//            <div class="value">
-//                дней
-//                <div class="days time">${dataValue.days}</div>
-//            </div>
-//            <div class="value">
-//                часов
-//                <div class="hours time">${dataValue.hours}</div>
-//            </div>
-//            <div class="value">
-//                минут
-//                <div class="minuts time">${dataValue.minutes}</div>
-//            </div>        
-//            <div class="value">
-//                секунд
-//                <div class="seconds time">${dataValue.seconds}</div>
-//            </div>
-//        </div>
-//    </div>`
+
+
+
+
 
 
 
