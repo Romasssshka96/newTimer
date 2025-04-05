@@ -1,4 +1,6 @@
-let dataForCaunter = (finishData) =>{
+const url1 = 'http://localhost:3000/request'
+
+let dataForCaunter = (finishData) =>{                   //создаём объект с высчитаными велечинами для отсчёта времени 
     const nowDate = Date.parse(new Date())
     const deadLine = Date.parse(new Date(finishData))
     let difference = deadLine - nowDate;
@@ -19,16 +21,15 @@ let dataForCaunter = (finishData) =>{
 }
 
 
-    const section = document.querySelector('section')
-    const form = document.querySelector('#form')
+    const section = document.querySelector('section')   //берем родительский елемент дома 
+    const form = document.querySelector('form')        //берем форму 
      
 
-    let bottonClear = document.createElement('button')
+    let bottonClear = document.createElement('button')  //создаём кнопку которая убирает таймер и возвращает форму на страницу 
     bottonClear.classList ='clear'
     bottonClear.innerText = 'сбросить таймер '
-    
 
-    bottonClear.addEventListener('click',()=>{
+    bottonClear.addEventListener('click',()=>{          //правила этой кнопки 
         let timer = document.querySelector('.case')
         timer.remove()
         bottonClear.remove()
@@ -37,23 +38,37 @@ let dataForCaunter = (finishData) =>{
         form.reset()
     })
 
+const postData = async (url, data)=>{                   //запрос на постинг данных
+    const res = await fetch(url, {
+        method: 'POST',
+        headers: {
+            'Content-type': 'application/json'
+        },
+        body:JSON.stringify(data)
+    })
+    return await res.json()
+}
 
 
-form.addEventListener('submit', (e)=>{
-    e.preventDefault()
-    let formData = Object.fromEntries(new FormData(form)) 
-
-    if(formData.data == ''){
-        alert('некоректно введена дата')
+const getData = async (url)=>{                          //запрос на получение данных 
+    const res = await fetch(url)
+    if(!res.ok){
+        console.log(err)
     }else{
+        return await res.json()
+    }
+}
+let test = getData(url1)
+console.log(test)
+
+
+const vivibility = (data ,descr)=>{                            //функция с отрисовкой таймера на странице
 
         form.style.display = 'none'
 
-        console.log(formData)
+        let dataValue = dataForCaunter(data);
 
-        let dataValue = dataForCaunter(formData.data);
-
-        function writer (title, days, hours, minuts, seconds){
+        function writer (title, days, hours, minuts, seconds){      //хтмл структура таймера 
             section.innerHTML =`
     <div class="case">
         <div class="title">${title}</div>
@@ -80,10 +95,10 @@ form.addEventListener('submit', (e)=>{
     `;
         }
 
-        function refreshTimer(){
+        function refreshTimer(){                            //принимает данніе с формы и обновляется с помощью интервала 
 
-        let dataValue = dataForCaunter(formData.data);
-        let title = formData.descr;
+        let dataValue = dataForCaunter(data) 
+        let title = descr;
         let days = dataValue.days;
         let hours = dataValue.hours;
         let minuts = dataValue.minuts;
@@ -92,22 +107,48 @@ form.addEventListener('submit', (e)=>{
         writer(title,days,hours,minuts,seconds)
         }
 
-        let interval = setInterval(refreshTimer, 1000);
+        let interval = setInterval(refreshTimer, 1000);             // интервал
         console.log(dataValue.total)
+        console.log(dataValue.hours)
 
-        if(dataValue.total <=0){
+        if(dataValue.total <=0){                                    //условия сброса интервала и конца отсчёта 
             clearInterval(interval);
-            writer(`${formData.descr} - отсчет закончен`,0,0,0,0)
+            writer(`${descr} - отсчет закончен`,0,0,0,0)
 
             section.append(bottonClear)
         
         } 
-    }
+}
+
+
+//----на этом моменте и начинается прикол, без гет пост запросов, просто с отрисовкой код работает нормально, когда добавлен гет или пост запрос, то страница при отправке формы перезагружается 
+
+
+form.addEventListener('submit', (e)=>{                      //событие которое берет данные с формы отправляет их на сервер и берет их для отрисовки объектов 
+    e.preventDefault()
+    console.log('hi')
+    let formData = Object.fromEntries(new FormData(form)) ; //переводим с форм даты в объект 
+    if (!formData.data){
+        alert('некоректно введена дата')
+         
+    }else{
+       postData(url1, formData)   //вызов вункции отправки 
+
+       getData(url1)                //вызов функции получения данных
+            .then(res =>{
+               let arr = res.reverse();           //     разворачиваем приходящий массив задом наперед        
+               console.log(arr)
+               let {data, descr} = arr[0]       //берем первое значение развернутого массива (последнюю запись пост запроса) и достаём из нее деструктуризацией нужные нам значения что б передать в функцию отрисовщик 
+               vivibility(data, descr) 
+       })
+
+    }    
+    
 })
 
 
 
-
+        
 
 
 
